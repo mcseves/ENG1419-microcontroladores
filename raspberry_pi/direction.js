@@ -9,6 +9,7 @@ function initMap() {
   var inputStart = document.getElementById('startInput');
   var inputEnd = document.getElementById('endInput');
 
+  var idObject = document.getElementById('idObjectInput').value;
   var start = inputStart.value;
   var end = inputEnd.value;
 
@@ -17,6 +18,7 @@ function initMap() {
 
   var onChangeHandler = function() {
       calcRoute(directionsService, directionsDisplay);
+      ajaxRoute(idObject);
     };
 
   var onPlaceStartChange = function() {
@@ -83,7 +85,7 @@ function calcRoute(directionsService, directionsDisplay) {
       for (var j = 0; j < pointsArray.length; j++)
       {
           var jsonPoints = {};
-          
+
           jsonPoints["lat"] = pointsArray[j].lat();
           jsonPoints["lng"] = pointsArray[j].lng();
           jsonRoute.route.push(jsonPoints);
@@ -94,4 +96,15 @@ function calcRoute(directionsService, directionsDisplay) {
       window.alert('Directions request failed due to ' + status);
     }
   });
+}
+
+function ajaxRoute(id) {
+    $.ajax({
+              url:$SCRIPT_ROOT + '/salvar_coord/' + id,
+              type: "POST",
+              contentType:"application/json",
+              dataType:"json",
+              data: JSON.stringify(jsonRoute)
+    });
+  
 }

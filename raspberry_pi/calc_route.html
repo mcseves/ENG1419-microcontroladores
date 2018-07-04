@@ -26,6 +26,11 @@
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCM8IQGMY3D3LN_tXVlflFcJxq3ymKi8so&callback=initMap&libraries=places">
     </script>
     <script type="text/javascript" src="direction.js"></script>
+    <script type=text/javascript src="{{
+  url_for('static', filename='jquery.js') }}"></script>
+    <script type=text/javascript>
+      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
 
 </body>
 </html>

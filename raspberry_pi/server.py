@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, request, render_template
 
 app = Flask(__name__)
 
@@ -13,6 +13,14 @@ def cadastrar_objeto():
 @app.route("/monitorar")
 def monitorar_objeto():
 	return render_template("monitorar.html")
+
+@app.route("/salvar_coord/<int:id>", methods = ['POST'])
+def salvar_coordenadas(id):
+	#recebe json da rota via javascript
+	jsonDaRota = request.get_json(force=True)
+
+
+
 
 
 app.run(port=5000, debug=True)
