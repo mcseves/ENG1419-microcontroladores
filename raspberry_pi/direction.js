@@ -78,12 +78,12 @@ function calcRoute(directionsService, directionsDisplay) {
     if (status == 'OK') {
       directionsDisplay.setDirections(result);
 
-      var pointsArray = result.routes[0].overview_path;
-
-      var jsonPoints = {};      
+      var pointsArray = result.routes[0].overview_path;      
 
       for (var j = 0; j < pointsArray.length; j++)
       {
+          var jsonPoints = {};
+          
           jsonPoints["lat"] = pointsArray[j].lat();
           jsonPoints["lng"] = pointsArray[j].lng();
           jsonRoute.route.push(jsonPoints);
