@@ -5,18 +5,66 @@ var jsonRoute = {
 function initMap() {
   var directionsService = new google.maps.DirectionsService();
   var directionsDisplay = new google.maps.DirectionsRenderer();
-  var chicago = new google.maps.LatLng(41.850033, -87.6500523);
-  var mapOptions = {
-    zoom:7,
-    center: chicago
-  }
+
+  var inputStart = document.getElementById('startInput');
+  var inputEnd = document.getElementById('endInput');
+
+  var start = inputStart.value;
+  var end = inputEnd.value;
+
+  var autocompleteStart = new google.maps.places.Autocomplete(inputStart);
+  var autocompleteEnd = new google.maps.places.Autocomplete(inputEnd);
 
   var onChangeHandler = function() {
       calcRoute(directionsService, directionsDisplay);
     };
 
-    document.getElementById('buttonRoute').addEventListener('click', onChangeHandler);
+  var onPlaceStartChange = function() {
+         
+    var placeStart = autocompleteStart.getPlace();
+    if (!placeStart.geometry) {
+      // User entered the name of a Place that was not suggested and
+      // pressed the Enter key, or the Place Details request failed.
+      window.alert("No details available for input: '" + placeStart.name + "'");
+      return;
+    }
+
+    var addressStart = '';
+    if (placeStart.address_components) {
+      address = [
+        (placeStart.address_components[0] && placeStart.address_components[0].short_name || ''),
+        (placeStart.address_components[1] && placeStart.address_components[1].short_name || ''),
+        (placeStart.address_components[2] && placeStart.address_components[2].short_name || '')
+      ].join(' ');
+    }
+  };
+
+  var onPlaceEndChange = function() {
+         
+    var placeEnd = autocompleteEnd.getPlace();
+    if (!placeEnd.geometry) {
+      // User entered the name of a Place that was not suggested and
+      // pressed the Enter key, or the Place Details request failed.
+      window.alert("No details available for input: '" + placeStart.name + "'");
+      return;
+    }
+
+    var addressEnd= '';
+    if (placeEnd.address_components) {
+      address = [
+        (placeEnd.address_components[0] && placeEnd.address_components[0].short_name || ''),
+        (placeEnd.address_components[1] && placeEnd.address_components[1].short_name || ''),
+        (placeEnd.address_components[2] && placeEnd.address_components[2].short_name || '')
+      ].join(' ');
+    }
+  };
+
+  document.getElementById('buttonRoute').addEventListener('click', onChangeHandler);
+
+  autocompleteStart.addListener('place_changed', onPlaceStartChange);
+  autocompleteEnd.addListener('place_changed', onPlaceEndChange);
 }
+
 
 function calcRoute(directionsService, directionsDisplay) {
   var start = document.getElementById('startInput').value;
