@@ -1,53 +1,71 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
+    <title>Monitorando a Rota</title>
+    <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
-    <title>Google Moving Map Demo</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
-
-    <!-- Le styles -->
-    <!-- <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet"> -->
     <style>
-      body {
-        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
       }
-	  #map_canvas { width: 450px; height: 450px; }
-	</style>
-    <!-- <link href="/static/bootstrap/css/bootstrap-responsive.css" rel="stylesheet"> -->
-
-    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="../assets/js/html5shiv.js"></script>
-    <![endif]-->
-
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
   </head>
-
   <body>
+    <div id="map"></div>
+    <script>
+      var map;
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: -22.979107, lng: -43.233083},
+          zoom: 8
+        });
+      }
 
-    <div class="navbar navbar-inverse navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <!-- <span class="icon-bar"></span> -->
-            <!-- <span class="icon-bar"></span> -->
-            <!-- <span class="icon-bar"></span> -->
-          </button>
-          <a class="brand" href="#">Google Moving Map Demo</a>
-        </div>
-      </div>
-    </div>
+      $(document).ready(function() {
 
-    <div class="container">
+  //Time between marker refreshes
+  var INTERVAL = 2000;
+  
+  //Used to remember markers
+  var markerStore = {};
 
-		<div id="map_canvas"></div>
+  getMarkers(); 
 
-    </div> 
+  function getMarkers() {
+    console.log('getMarkers');
+    $.get('/markerData', {}, function(res,resp) {
+      console.dir(res);
+      for(var i=0, len=res.length; i<len; i++) {
 
-	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>	  
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-	<!-- <script src="/static/main.js"></script> -->
+        //Do we have this marker already?
+        if(markerStore.hasOwnProperty(res[i].id)) {
+          console.log('just funna move it...');
+          markerStore[res[i].id].setPosition(new google.maps.LatLng(res[i].position.lat,res[i].position.long));
+        } else {
+          var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(res[i].position.lat,res[i].position.long),
+            title:res[i].name,
+            map:map
+          }); 
+          markerStore[res[i].id] = marker;
+          console.log(marker.getTitle());
+        }
+      }
+      window.setTimeout(getMarkers,INTERVAL);
+    }, "json");
+  }
+  
+})
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCM8IQGMY3D3LN_tXVlflFcJxq3ymKi8so&callback=initMap"
+    async defer></script>
   </body>
 </html>
