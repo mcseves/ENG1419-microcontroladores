@@ -1,6 +1,12 @@
 from flask import Flask, request, render_template
+from pymongo import MongoClient, ASCENDING, DESCENDING
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
+
+cliente = MongoClient("localhost", 27017)
+banco = cliente["mapa"] 
+colecao = banco["coordenadas"]
 
 @app.route("/inicio")
 def funcao_da_pagina_inicio():
@@ -18,6 +24,8 @@ def monitorar_objeto():
 def salvar_coordenadas(id):
 	#recebe json da rota via javascript
 	jsonDaRota = request.get_json(force=True)
+	documento = {"rota": jsonDaRota, "data": datetime.now()
+	colecao.insert_one(documento)
 
 
 
