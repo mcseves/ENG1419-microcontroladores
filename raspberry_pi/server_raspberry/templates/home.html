@@ -55,17 +55,13 @@
                       <td>
                           {%  if result["situacao"] == 'normal' %}
                               <h5><span class="badge badge-primary">Normal</span></h5>
-                              </td>
-                              <td>
-                                  <button type="button" class="btn btn-danger" disabled>Autodestruir</button>
-                              </td>
                           {% else %}
                               <h5><span class="badge badge-warning">Fora da Rota</span></h5>
-                              </td>
-                              <td>
-                                  <button type="button" class="btn btn-danger">Autodestruir</button>
-                              </td>
                           {% endif %}
+                      </td>
+                      <td>
+                          <button type="button" class="btn btn-danger" disabled>Autodestruir</button>
+                      </td>
 
 
                       <td><a href="#">Link</a> </td>

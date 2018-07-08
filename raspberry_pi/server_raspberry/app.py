@@ -1,9 +1,12 @@
-from flask import Flask, request, redirect, url_for, render_template
-from pymongo import MongoClient
+from flask import Flask, request, render_template
+from pymongo import MongoClient, ASCENDING
+import datetime
 
 cliente = MongoClient("localhost", 27017)
 banco = cliente["monitoramento"]
-colecao = banco["objetos"]
+colecao_rotas = banco["rotas"]
+colecao_gps = banco["coordenadas"]
+
 
 app = Flask(__name__)
 
@@ -13,10 +16,11 @@ if __name__ == '__main__':
 
 @app.route('/')
 def inicio():
-    cursor = colecao.find({})
+    cursor = colecao_rotas.find({})
     result = list(cursor)
 
-    results = [{'id': '1', 'situacao': 'normal'}, {'id': '2', 'situacao': 'fora da rota'}, {'id': '2', 'situacao': 'normal'}]
+    results = [{'id': '1', 'situacao': 'normal'}, {'id': '2', 'situacao': 'fora da rota'},
+               {'id': '2', 'situacao': 'normal'}]
     return render_template("home.html", results=results)
 
 
@@ -33,21 +37,35 @@ def monitorar_objeto():
 @app.route("/salvar_coord/<int:id>", methods=['POST'])
 def salvar_coordenadas(id):
     busca = {"id": id}
-    resultado = list(colecao.find(busca))
+    resultado = list(colecao_rotas.find(busca))
     if len(resultado) != 0:
         print("Objeto ja existe")
-        return redireciona_erro()
+        return render_template('home.html')
     # recebe json da rota via javascript
     rota = request.get_json(force=True)['route']
     documento_objeto = {"id": id, "coordenadas": rota}
-    colecao.insert_one(documento_objeto)
+    colecao_rotas.insert_one(documento_objeto)
 
     print("Objeto incluído")
     return render_template('home.html')
 
-def redireciona_erro():
-    return render_template("calc_route.html", message='Objeto já existe')
 
+@app.route('/enviar_coord', methods=['GET', 'POST'])
+def recebe_coordenadas():
+    lat, long = request.data.decode("utf-8").split(',')
+    coord = {}
+    coord["id"] = "1"
+    coord["lat"] = lat
+    coord["lng"] = long
+    coord["data"] = datetime.now()
+
+    colecao_gps.insert_one(coord)
+
+    return render_template('home.html')
+
+def pega_ultima_coord():
+    ordenacao = [("data", ASCENDING)]
+    return list(colecao_gps.find_one({}, sort=ordenacao))
 
 
 

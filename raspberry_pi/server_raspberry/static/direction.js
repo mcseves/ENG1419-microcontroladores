@@ -11,7 +11,7 @@ window.initMap = function() {
 
   var start = inputStart.value;
   var end = inputEnd.value;
-  var idObject = document.getElementById('idObjectInput').value;
+  //var idObject = document.getElementById('idObjectInput').value;
 
   var autocompleteStart = new google.maps.places.Autocomplete(inputStart);
   var autocompleteEnd = new google.maps.places.Autocomplete(inputEnd);
@@ -92,8 +92,8 @@ function calcRoute(directionsService, directionsDisplay) {
           jsonRoute.route.push(jsonPoints);
       }
 
-      var idObject = document.getElementById('idObjectInput').value;
-      ajaxRoute(idObject);
+      //var idObject = document.getElementById('idObjectInput').value;
+      ajaxRoute();
 
     } else {
       window.alert('Directions request failed due to ' + status);
@@ -101,13 +101,13 @@ function calcRoute(directionsService, directionsDisplay) {
   });
 }
 
-function ajaxRoute(id) {
+function ajaxRoute() {
     $.ajax({
-              url:$SCRIPT_ROOT + '/salvar_coord/' + id,
-              type: "POST",
-              contentType:"application/json",
-              dataType:"json",
-              data: JSON.stringify(jsonRoute)
+      url:$SCRIPT_ROOT + '/salvar_coord/1',
+      type: "POST",
+      contentType:"application/json",
+      dataType:"json",
+      data: JSON.stringify(jsonRoute)
     });
 
     jsonRoute = {"route": []};
