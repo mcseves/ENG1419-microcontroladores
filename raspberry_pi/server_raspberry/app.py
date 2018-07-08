@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template
-from pymongo import MongoClient, ASCENDING
-import datetime
+from pymongo import MongoClient, DESCENDING
+from datetime import datetime
 
 cliente = MongoClient("localhost", 27017)
 banco = cliente["monitoramento"]
@@ -60,12 +60,13 @@ def recebe_coordenadas():
     coord["data"] = datetime.now()
 
     colecao_gps.insert_one(coord)
+    pega_ultima_coord()
 
     return render_template('home.html')
 
 def pega_ultima_coord():
-    ordenacao = [("data", ASCENDING)]
-    return list(colecao_gps.find_one({}, sort=ordenacao))
+    ordenacao = [("data", DESCENDING)]
+    return dict(colecao_gps.find_one({}, sort=ordenacao))
 
 
 
