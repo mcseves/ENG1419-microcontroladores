@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <meta charset="utf-8">
+  <style>
+  </style>
+
+</head>
+<body>
+  <form>
+    <div>
+      <h2>Definir rota para objeto</h2>
+      </br>
+      <label for="idObjectInput" ><strong>Identificador do objeto: </strong></label> 
+      <input type="text" id="idObjectInput"></input></br>
+      <label for="startInput"><strong>Origem: </strong></label>
+      <input type="text" id="startInput" placeholder=" Entre com uma localização "></input></br>
+      <label for="endInput"><strong>Destino: </strong></label>
+      <input type="text" id="endInput" placeholder=" Entre com uma localização "></input></br>
+      </br>
+      <input id="buttonRoute" type="button" value="Definir rota"/>
+    </div>
+  </form>
+   <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCM8IQGMY3D3LN_tXVlflFcJxq3ymKi8so&callback=initMap&libraries=places">
+    </script>
+    <script type="text/javascript" src="./static/direction.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="{{
+  url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
+    <script type=text/javascript>
+      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
+
+
+</body>
+</html>
