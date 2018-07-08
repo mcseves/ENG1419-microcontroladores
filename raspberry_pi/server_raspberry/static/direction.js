@@ -2,7 +2,7 @@ var jsonRoute = {
   "route": []
 }
 
-function initMap() {
+window.initMap = function() {
   var directionsService = new google.maps.DirectionsService();
   var directionsDisplay = new google.maps.DirectionsRenderer();
 
