@@ -1,12 +1,12 @@
 from flask import Flask, request, render_template
 from pymongo import MongoClient, DESCENDING
 from datetime import datetime
+from twilio.rest import Client
 
 cliente = MongoClient("localhost", 27017)
 banco = cliente["monitoramento"]
 colecao_rotas = banco["rotas"]
 colecao_gps = banco["coordenadas"]
-
 
 app = Flask(__name__)
 
@@ -14,14 +14,21 @@ if __name__ == '__main__':
     app.run()
 
 
+# Funcao que é executada de tempos em tempos, verificando se a ultima coordenada do GPS
+# gravada no banco está ou não dentro da rota definida
 @app.route('/')
 def inicio():
-    cursor = colecao_rotas.find({})
-    result = list(cursor)
+    # Pega rota do objeto no banco de dados
+    cursor_rotas = colecao_rotas.find({})
+    lista_rotas = list(cursor_rotas)
 
-    results = [{'id': '1', 'situacao': 'normal'}, {'id': '2', 'situacao': 'fora da rota'},
-               {'id': '2', 'situacao': 'normal'}]
-    return render_template("home.html", results=results)
+    # Pega última coordenada vinda do GPS gravada no banco
+    coord = pega_ultima_coord_gps()
+
+    # verifica a rota, retornando uma lista com dicionarios para popular a tabela da pagina inicial
+    tabela = verificar_rota(lista_rotas, coord['lat'], coord['lng'])
+
+    return render_template("home.html", results=tabela)
 
 
 @app.route("/cadastrar")
@@ -34,6 +41,8 @@ def monitorar_objeto():
     return render_template("monitorar.html")
 
 
+# Salva as coordenadas da rota definida no banco de dados
+# Formato salvo: dict com as chaves 'id', 'coordenadas' (lista de dicts com 'lat' e 'lng')
 @app.route("/salvar_coord/<int:id>", methods=['POST'])
 def salvar_coordenadas(id):
     busca = {"id": id}
@@ -50,23 +59,78 @@ def salvar_coordenadas(id):
     return render_template('home.html')
 
 
+# Recebe coordenadas do GPS via requisição e grava no banco de dados
 @app.route('/enviar_coord', methods=['GET', 'POST'])
 def recebe_coordenadas():
     lat, long = request.data.decode("utf-8").split(',')
-    coord = {}
-    coord["id"] = "1"
-    coord["lat"] = lat
-    coord["lng"] = long
-    coord["data"] = datetime.now()
+    coord = {'id': '1', 'lat': lat, 'lng': long, 'data': datetime.now()}
 
     colecao_gps.insert_one(coord)
-    pega_ultima_coord()
 
     return render_template('home.html')
 
-def pega_ultima_coord():
+# Pega a ultima coordenada do GPS pela data de inclusao
+def pega_ultima_coord_gps():
     ordenacao = [("data", DESCENDING)]
     return dict(colecao_gps.find_one({}, sort=ordenacao))
 
+# Verifica se a coordenada do GPS está dentro da rota,
+# envia um SMS caso não e monta um dicionario com essa informacao
+# retorno: dict com as keys 'id' e 'situacao' ('normal' ou 'fora da rota')
+def verificar_rota(rota, latitude_gps, longitude_gps):
+    resultado = {'id': '1'}
+    distancias = []
+    dist_pontos_adjacentes = []
+    latitudes_rota = []
+    longitudes_rota = []
+    controle = 0
+    coord_rota = rota["coordenadas"]
+    for lat, lng in coord_rota.items():
+        latitudes_rota.append(float(lat))
+        longitudes_rota.append(float(lng))
 
+    for i in range(len(lat)):
+        dist_pontos_adjacentes.append(
+            ((latitudes_rota[i] - latitudes_rota[i + 1]) ** 2 + (longitudes_rota[i] - longitudes_rota[i + 1]) ** 2) ** (
+                    1 / 2))
+    for i in range(len(lat)):
+        distancias.append(
+            ((latitudes_rota[i] - latitude_gps) ** 2 + (longitudes_rota[i] - longitude_gps) ** 2) ** (1 / 2))
 
+    distancias.sort()  # Ordenando as distancias entre o ponto GPS e os pontos da rota
+    dist_pontos_adjacentes.sort()  # Ordenando as distancias entre os pontos adjacentes da rota
+
+    # Comparação da menor distancia encontrada entre a localização
+    # do GPS e a maior distância entre dois pontos adjacantes da rota.
+    if dist_pontos_adjacentes[-1] < distancias[0]:
+        controle += 1
+        if controle < 5:
+            enviar_sms('Você está fora da rota definida. Volte imediatamente para a rota!')
+            resultado['situacao'] = 'fora da rota'
+
+        else:
+            enviar_sms('DESTRUICAO')
+            resultado['situacao'] = 'fora da rota'
+
+    if 'situacao' not in resultado:
+        resultado['situacao'] = 'normal'
+
+    return resultado
+
+#Envia SMS
+def enviar_sms(texto):
+    twilio_number = '+12016544082'
+    to = '+5521988526176'
+    # Your Account SID from twilio.com/console
+    account_sid = "ACc1e15d9f1e5c6e4ef7646670b3bd9f40"
+    # Your Auth Token from twilio.com/console
+    auth_token = "8007cd98003bfa8d7ecacd8dc5911a4a"
+
+    client = Client(account_sid, auth_token)
+
+    message = client.messages.create(
+        to=to,
+        from_=twilio_number,
+        body=texto)
+
+    print(message.sid)
