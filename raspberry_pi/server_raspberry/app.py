@@ -31,7 +31,9 @@ def cadastrar_objeto():
 
 @app.route("/monitorar")
 def monitorar_objeto():
-    return render_template("monitorar.html")
+    coord = pega_ultima_coord()
+
+    return render_template("monitorar.html", coord=coord)
 
 
 @app.route("/salvar_coord/<int:id>", methods=['POST'])
