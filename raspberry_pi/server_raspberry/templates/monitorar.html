@@ -30,11 +30,9 @@
 <div id="map">
     <script>
 
-        var directionsService = new google.maps.DirectionsService();
-
         // iniciando o mapa da google api
         function initMap() {
-
+            var directionsService = new google.maps.DirectionsService();
             var originalLatLng = new google.maps.LatLng(-22.979107, -43.233083);
 
             map = new google.maps.Map(document.getElementById('map'), {
@@ -55,19 +53,15 @@
 
             var flightPlanCoordinates = [];
 
-            for (i = 0; i < {{len(rota)}}; i++) {
-        		/* if( i == 0 || i < locations.length){
-        		            marker = new google.maps.Marker({
-        		                position: new google.maps.LatLng(locations[i].address.lat, locations[i].address.lng),
-        		                map: map
-        		            });
-        		            } */
-        		latitude = {{rota[i]["lat"]}}
-        		longitude = {{rota[i]["lng"]}}
-        		posroute = new google.maps.LatLng(latitude, longitude);
-                flightPlanCoordinates.push(posroute);
-                //bounds.extend(marker.position);
-            }
+            {% if rota is defined %}
+                {% for ponto in rota %}
+                    latitude = {{ponto["lat"]}}
+                    longitude = {{ponto["lng"]}}
+                    posroute = new google.maps.LatLng(latitude, longitude);
+                    flightPlanCoordinates.push(posroute);
+                    //bounds.extend(marker.position);
+                {%  endfor %}
+            {% endif %}
 
             // directions service
             var start = flightPlanCoordinates[0];
@@ -79,7 +73,7 @@
                     stopover: true
                 });
             }
-            calcRoute(start, end, waypts);
+            calcRoute(directionsService, start, end, waypts);
         }
 
         //função que atualiza a posição do marcador
@@ -91,7 +85,7 @@
 
         // função que coloca a rota salva no banco de dados
 
-        function calcRoute(start, end, waypts) {
+        function calcRoute(directionsService, start, end, waypts) {
             var request = {
                 origin: start,
                 destination: end,

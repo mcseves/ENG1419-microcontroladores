@@ -91,12 +91,12 @@ def verificar_rota(rota, latitude_gps, longitude_gps):
     dist_pontos_adjacentes = []
     latitudes_rota = []
     longitudes_rota = []
-    coord_rota = rota["coordenadas"]
-    for lat, lng in coord_rota.items():
-        latitudes_rota.append(float(lat))
-        longitudes_rota.append(float(lng))
+    coord_rota = rota[0]["coordenadas"]
+    for coord in coord_rota:
+        latitudes_rota.append(float(coord['lat']))
+        longitudes_rota.append(float(coord['lng']))
 
-    for i in range(len(latitudes_rota)):
+    for i in range(len(latitudes_rota) - 1):
         dist_pontos_adjacentes.append(
             ((latitudes_rota[i] - latitudes_rota[i + 1]) ** 2 + (longitudes_rota[i] - longitudes_rota[i + 1]) ** 2) ** (
                     1 / 2))
@@ -125,6 +125,7 @@ def verificar_rota(rota, latitude_gps, longitude_gps):
 
     return resultado
 
+@app.route("/autodestruir")
 def acao_autodestruir():
     print('Autodestruindo!!!!  - Enviado pelo site')
     enviar_sms('DESTRUIR')
