@@ -71,10 +71,12 @@ def recebe_coordenadas():
 
     return render_template('home.html')
 
+
 # Pega a ultima coordenada do GPS pela data de inclusao
 def pega_ultima_coord_gps():
     ordenacao = [("data", DESCENDING)]
     return dict(colecao_gps.find_one({}, sort=ordenacao))
+
 
 # Verifica se a coordenada do GPS está dentro da rota,
 # envia um SMS caso não e monta um dicionario com essa informacao
@@ -91,11 +93,11 @@ def verificar_rota(rota, latitude_gps, longitude_gps):
         latitudes_rota.append(float(lat))
         longitudes_rota.append(float(lng))
 
-    for i in range(len(lat)):
+    for i in range(len(latitudes_rota)):
         dist_pontos_adjacentes.append(
             ((latitudes_rota[i] - latitudes_rota[i + 1]) ** 2 + (longitudes_rota[i] - longitudes_rota[i + 1]) ** 2) ** (
                     1 / 2))
-    for i in range(len(lat)):
+    for i in range(len(latitudes_rota)):
         distancias.append(
             ((latitudes_rota[i] - latitude_gps) ** 2 + (longitudes_rota[i] - longitude_gps) ** 2) ** (1 / 2))
 
@@ -119,7 +121,8 @@ def verificar_rota(rota, latitude_gps, longitude_gps):
 
     return resultado
 
-#Envia SMS
+
+# Envia SMS
 def enviar_sms(texto):
     twilio_number = '+12016544082'
     to = '+5521988526176'
@@ -136,3 +139,14 @@ def enviar_sms(texto):
         body=texto)
 
     print(message.sid)
+
+
+@app.route('/destruiu', methods=['GET', 'POST'])
+def aviso_destruicao():
+    dado = request.data.decode("utf-8")
+    if dado == '1':
+        results = [{'id': '1', 'situacao': 'destruido'}]
+        return render_template("home.html", results=results)
+    return render_template("home.html")
+
+
