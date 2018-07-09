@@ -1,7 +1,7 @@
-from flask import Flask, request, render_template
+from flask import Flask, flash, request, render_template, session
 from pymongo import MongoClient, DESCENDING
 from datetime import datetime
-from twilio.rest import Client
+# from twilio.rest import Client
 
 cliente = MongoClient("localhost", 27017)
 banco = cliente["monitoramento"]
@@ -17,7 +17,25 @@ if __name__ == '__main__':
 
 # Funcao que é executada de tempos em tempos, verificando se a ultima coordenada do GPS
 # gravada no banco está ou não dentro da rota definida
+
 @app.route('/')
+def home():
+    if not session.get('logged_in'):
+        return render_template('login.html')
+    else:
+        return inicio()
+
+
+@app.route('/login', methods=['POST'])
+def do_admin_login():
+    if request.form['password'] == 'password' and request.form['username'] == 'admin':
+        session['logged_in'] = True
+        return inicio()
+    else:
+        flash('wrong password!')
+    return home()
+
+@app.route('/inicio')
 def inicio():
     # Pega rota do objeto no banco de dados
     cursor_rotas = colecao_rotas.find({})
@@ -139,14 +157,14 @@ def enviar_sms(texto):
     # Your Auth Token from twilio.com/console
     auth_token = "8007cd98003bfa8d7ecacd8dc5911a4a"
 
-    client = Client(account_sid, auth_token)
+    # client = Client(account_sid, auth_token)
 
-    message = client.messages.create(
-        to=to,
-        from_=twilio_number,
-        body=texto)
-
-    print(message.sid)
+    #  message = client.messages.create(
+    #     to=to,
+    #     from_=twilio_number,
+    #     body=texto)
+    #
+    # print(message.sid)
 
 
 @app.route('/destruiu', methods=['GET', 'POST'])
