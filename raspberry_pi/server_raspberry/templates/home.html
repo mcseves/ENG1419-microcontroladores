@@ -49,20 +49,19 @@
                 </tr>
             </thead>
             <tbody>
-                {% for result in results %}
                     <tr>
-                      <th scope="row">{{ result["id"] }}</th>
+                      <th scope="row">{{ results['id'] }}</th>
                       <td>
-                          {%  if result["situacao"] == 'normal' %}
+                          {%  if results['situacao'] == 'normal' %}
                               <h5><span class="badge badge-primary">Normal</span></h5>
-                          {% elif result["situacao"] == 'fora da rota'%}
+                          {% elif results['situacao'] == 'fora da rota'%}
                               <h5><span class="badge badge-warning">Fora da Rota</span></h5>
                           {%  else %}
-                            <h5><span class="badge badge-danger">Destruído</span></h5>
+                                <h5><span class="badge badge-danger">{{ results['situacao'] }}</span></h5>
                           {% endif %}
                       </td>
                       <td>
-                          {%  if result["situacao"] == 'normal' or result["situacao"] == 'fora da rota' %}
+                          {%  if results['situacao'] == 'normal' or results['situacao'] == 'fora da rota' %}
                                 <a href="/autodestruir" class="btn btn-danger">Autodestruir</a>
                           {% else %}
                                 <a href="/"  class="btn btn-danger" disabled>Autodestruir</a>
@@ -70,10 +69,8 @@
                       </td>
 
 
-                      <td><a href="#">Link</a> </td>
+                      <td><a href="/monitorar">Link</a> </td>
                     </tr>
-                {% endfor %}
-
             </tbody>
         </table>
 

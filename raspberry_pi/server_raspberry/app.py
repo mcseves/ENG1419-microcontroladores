@@ -102,7 +102,7 @@ def verificar_rota(rota, latitude_gps, longitude_gps):
                     1 / 2))
     for i in range(len(latitudes_rota)):
         distancias.append(
-            ((latitudes_rota[i] - latitude_gps) ** 2 + (longitudes_rota[i] - longitude_gps) ** 2) ** (1 / 2))
+            ((latitudes_rota[i] - float(latitude_gps)) ** 2 + (longitudes_rota[i] - float(longitude_gps)) ** 2) ** (1 / 2))
 
     distancias.sort()  # Ordenando as distancias entre o ponto GPS e os pontos da rota
     dist_pontos_adjacentes.sort()  # Ordenando as distancias entre os pontos adjacentes da rota
@@ -130,6 +130,10 @@ def acao_autodestruir():
     print('Autodestruindo!!!!  - Enviado pelo site')
     enviar_sms('DESTRUIR')
 
+    results = {'id': '1', 'situacao': 'Destruindo...'}
+    return render_template("home.html", results=results)
+
+
 # Envia SMS
 def enviar_sms(texto):
     twilio_number = '+12016544082'
@@ -141,19 +145,19 @@ def enviar_sms(texto):
 
     client = Client(account_sid, auth_token)
 
-    message = client.messages.create(
-        to=to,
-        from_=twilio_number,
-        body=texto)
+    # message = client.messages.create(
+    #     to=to,
+    #     from_=twilio_number,
+    #     body=texto)
 
-    print(message.sid)
+    #print(message.sid)
 
 
 @app.route('/destruiu', methods=['GET', 'POST'])
 def aviso_destruicao():
     dado = request.data.decode("utf-8")
     if dado == '1':
-        results = [{'id': '1', 'situacao': 'destruido'}]
+        results = [{'id': '1', 'situacao': 'Destruído'}]
         return render_template("home.html", results=results)
     return render_template("home.html")
 
