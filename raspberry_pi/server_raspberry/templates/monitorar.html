@@ -29,29 +29,86 @@
 <body>
 <div id="map">
     <script>
+
+        var directionsService = new google.maps.DirectionsService();
+
+        // iniciando o mapa da google api
         function initMap() {
+
             var originalLatLng = new google.maps.LatLng(-22.979107, -43.233083);
+
             map = new google.maps.Map(document.getElementById('map'), {
                 center: originalLatLng, zoom: 8
-            }); 
+            });
+
+            var lat = {{ coord["lat"]}};
+            var lng = {{ coord ["lng"]}};
+            var newlatlng = new google.maps.LatLng(lat,lng);
+
             marker = new google.maps.Marker({
-                position: originalLatLng,
+                position: newlatlng,
                 map: map,
                 draggable: false
             });
+
+            marker.setPosition(newlatlng);
+
+            var flightPlanCoordinates = [];
+
+            for (i = 0; i < {{len(rota)}}; i++) {
+        		/* if( i == 0 || i < locations.length){
+        		            marker = new google.maps.Marker({
+        		                position: new google.maps.LatLng(locations[i].address.lat, locations[i].address.lng),
+        		                map: map
+        		            });
+        		            } */
+        		latitude = {{rota[i]["lat"]}}
+        		longitude = {{rota[i]["lng"]}}
+        		posroute = new google.maps.LatLng(latitude, longitude);
+                flightPlanCoordinates.push(posroute);
+                //bounds.extend(marker.position);
+            }
+
+            // directions service
+            var start = flightPlanCoordinates[0];
+            var end = flightPlanCoordinates[flightPlanCoordinates.length - 1];
+            var waypts = [];
+            for (var i = 1; i < flightPlanCoordinates.length - 1; i++) {
+                waypts.push({
+                    location: flightPlanCoordinates[i],
+                    stopover: true
+                });
+            }
+            calcRoute(start, end, waypts);
         }
-        
+
+        //função que atualiza a posição do marcador
         function updateMarker() {
-            setInterval(function(){
-                // aqui as lats e lngs devem ser as referentes as ultimas adicionadas no bd
-                var lat = {{ coord["lat"]}}
-                var lng = {{ coord ["lng"]}}
-                var newlatlng = new google.maps.LatLng(lat,lng);
-                marker.setPosition(newlatlng);
+            setTimeout(function(){
+                window.location.reload(true);
             }, 5000);
         }
-        
+
+        // função que coloca a rota salva no banco de dados
+
+        function calcRoute(start, end, waypts) {
+            var request = {
+                origin: start,
+                destination: end,
+                waypoints: waypts,
+                optimizeWaypoints: true,
+                travelMode: google.maps.TravelMode.DRIVING
+            };
+            directionsService.route(request, function (response, status) {
+                if (status == google.maps.DirectionsStatus.OK) {
+                    directionsDisplay.setDirections(response);
+                    var route = response.routes[0];
+                }
+            });
+        }
+
         updateMarker();
+
     </script>
 
 </div>

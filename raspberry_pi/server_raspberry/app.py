@@ -40,8 +40,10 @@ def cadastrar_objeto():
 @app.route("/monitorar")
 def monitorar_objeto():
     coord = pega_ultima_coord_gps()
+    local = consultar_rota()
+    rota = local[0]["coordenadas"]
 
-    return render_template("monitorar.html", coord=coord)
+    return render_template("monitorar.html", coord=coord, rota=rota)
 
 
 # Salva as coordenadas da rota definida no banco de dados
