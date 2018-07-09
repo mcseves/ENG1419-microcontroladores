@@ -168,12 +168,12 @@ def enviar_sms(texto):
 
     client = Client(account_sid, auth_token)
 
-    # message = client.messages.create(
-    #     to=to,
-    #     from_=twilio_number,
-    #     body=texto)
+    message = client.messages.create(
+        to=to,
+        from_=twilio_number,
+        body=texto)
 
-    #print(message.sid)
+    print(message.sid)
 
 
 @app.route('/destruiu', methods=['GET', 'POST'])
