@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>Monitorando a Rota</title>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
@@ -16,56 +16,21 @@
         margin: 0;
         padding: 0;
       }
+
+
     </style>
-  </head>
-  <body>
-    <div id="map"></div>
-    <script>
-      var map;
-      function initMap() {
-        map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat: -22.979107, lng: -43.233083},
-          zoom: 8
-        });
-      }
-
-      $(document).ready(function() {
-
-  //Time between marker refreshes
-  var INTERVAL = 2000;
-  
-  //Used to remember markers
-  var markerStore = {};
-
-  getMarkers(); 
-
-  function getMarkers() {
-    console.log('getMarkers');
-    $.get('/markerData', {}, function(res,resp) {
-      console.dir(res);
-      for(var i=0, len=res.length; i<len; i++) {
-
-        //Do we have this marker already?
-        if(markerStore.hasOwnProperty(res[i].id)) {
-          console.log('just funna move it...');
-          markerStore[res[i].id].setPosition(new google.maps.LatLng(res[i].position.lat,res[i].position.long));
-        } else {
-          var marker = new google.maps.Marker({
-            position: new google.maps.LatLng(res[i].position.lat,res[i].position.long),
-            title:res[i].name,
-            map:map
-          }); 
-          markerStore[res[i].id] = marker;
-          console.log(marker.getTitle());
-        }
-      }
-      window.setTimeout(getMarkers,INTERVAL);
-    }, "json");
-  }
-  
-})
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script async defer 
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCM8IQGMY3D3LN_tXVlflFcJxq3ymKi8so&callback=initMap&libraries=places">
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCM8IQGMY3D3LN_tXVlflFcJxq3ymKi8so&callback=initMap"
-    async defer></script>
-  </body>
+    <script type="text/javascript" src="./marker.js"></script>
+
+</head>
+
+<body>
+<div id="map">
+
+</div>
+
+</body>
 </html>
