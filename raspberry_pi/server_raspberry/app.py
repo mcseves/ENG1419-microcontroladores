@@ -1,7 +1,8 @@
-from flask import Flask, request, render_template
+from flask import Flask, flash, request, render_template, session, g, redirect, url_for
 from pymongo import MongoClient, DESCENDING
 from datetime import datetime
 from twilio.rest import Client
+from functools import wraps
 
 cliente = MongoClient("localhost", 27017)
 banco = cliente["monitoramento"]
@@ -10,14 +11,33 @@ colecao_gps = banco["coordenadas"]
 controle = 0
 
 app = Flask(__name__)
+app.secret_key = b'jajasaj82qwi9021jsa##$#@'
 
 if __name__ == '__main__':
     app.run()
 
 
+@app.route('/')
+def home():
+    if not session.get('logged_in'):
+        return render_template('login.html')
+    else:
+        return inicio()
+
+
+@app.route('/login', methods=['POST'])
+def do_admin_login():
+    if request.form['password'] == 'password' and request.form['username'] == 'admin':
+        session['logged_in'] = True
+        return inicio()
+    else:
+        flash('wrong password!')
+    return home()
+
 # Funcao que é executada de tempos em tempos, verificando se a ultima coordenada do GPS
 # gravada no banco está ou não dentro da rota definida
-@app.route('/')
+@app.route('/inicio')
+# @login_required
 def inicio():
     # Pega rota do objeto no banco de dados
     cursor_rotas = colecao_rotas.find({})
@@ -33,11 +53,13 @@ def inicio():
 
 
 @app.route("/cadastrar")
+# @login_required
 def cadastrar_objeto():
     return render_template("calc_route.html")
 
 
 @app.route("/monitorar")
+# @login_required
 def monitorar_objeto():
     coord = pega_ultima_coord_gps()
     local = consultar_rota()
@@ -126,6 +148,7 @@ def verificar_rota(rota, latitude_gps, longitude_gps):
     return resultado
 
 @app.route("/autodestruir")
+# @login_required
 def acao_autodestruir():
     print('Autodestruindo!!!!  - Enviado pelo site')
     enviar_sms('DESTRUIR')
