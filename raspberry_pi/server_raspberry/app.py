@@ -38,7 +38,7 @@ def cadastrar_objeto():
 
 @app.route("/monitorar")
 def monitorar_objeto():
-    coord = pega_ultima_coord()
+    coord = pega_ultima_coord_gps()
 
     return render_template("monitorar.html", coord=coord)
 
