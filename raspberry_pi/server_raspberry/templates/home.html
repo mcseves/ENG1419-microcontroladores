@@ -63,9 +63,9 @@
                       </td>
                       <td>
                           {%  if result["situacao"] == 'normal' or result["situacao"] == 'fora da rota' %}
-                                <button type="button" class="btn btn-danger">Autodestruir</button>
+                                <a href="/" class="btn btn-danger">Autodestruir</a>
                           {% else %}
-                                <button type="button" class="btn btn-danger" disabled>Autodestruir</button>
+                                <a href="/"  class="btn btn-danger" disabled>Autodestruir</a>
                           {% endif %}
                       </td>
 

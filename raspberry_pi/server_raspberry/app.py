@@ -7,6 +7,7 @@ cliente = MongoClient("localhost", 27017)
 banco = cliente["monitoramento"]
 colecao_rotas = banco["rotas"]
 colecao_gps = banco["coordenadas"]
+controle = 0
 
 app = Flask(__name__)
 
@@ -82,12 +83,12 @@ def pega_ultima_coord_gps():
 # envia um SMS caso não e monta um dicionario com essa informacao
 # retorno: dict com as keys 'id' e 'situacao' ('normal' ou 'fora da rota')
 def verificar_rota(rota, latitude_gps, longitude_gps):
+    global controle
     resultado = {'id': '1'}
     distancias = []
     dist_pontos_adjacentes = []
     latitudes_rota = []
     longitudes_rota = []
-    controle = 0
     coord_rota = rota["coordenadas"]
     for lat, lng in coord_rota.items():
         latitudes_rota.append(float(lat))
@@ -113,7 +114,8 @@ def verificar_rota(rota, latitude_gps, longitude_gps):
             resultado['situacao'] = 'fora da rota'
 
         else:
-            enviar_sms('DESTRUICAO')
+            enviar_sms('DESTRUIR')
+            print('Autodestruindo!!!!  - Enviado pelo servidor')
             resultado['situacao'] = 'fora da rota'
 
     if 'situacao' not in resultado:
@@ -121,6 +123,9 @@ def verificar_rota(rota, latitude_gps, longitude_gps):
 
     return resultado
 
+def acao_autodestruir():
+    print('Autodestruindo!!!!  - Enviado pelo site')
+    enviar_sms('DESTRUIR')
 
 # Envia SMS
 def enviar_sms(texto):
@@ -150,3 +155,7 @@ def aviso_destruicao():
     return render_template("home.html")
 
 
+def consultar_rota():
+    # Pega rota do objeto no banco de dados
+    cursor_rotas = colecao_rotas.find({})
+    return list(cursor_rotas)
